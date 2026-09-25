@@ -2,10 +2,10 @@
 // Guard for staying public: this repository ships in the open, so nothing in it may carry
 // anything private. Scans every git-tracked file, plus every untracked file git wouldn't ignore,
 // for four things that don't belong in a public repository:
-//   - any character from a non-Latin script (Cyrillic, Greek, Armenian, Hebrew, Arabic, CJK,
-//     Hangul, and similar) — docs here are English-only, and a stray one means a document or
-//     fixture wasn't translated. Emoji and typographic punctuation (em dash, curly quotes,
-//     ellipsis, arrows) are NOT script characters and stay allowed;
+//   - any character from a non-Latin script (Arabic, Armenian, CJK, Greek, Hangul, Hebrew, and
+//     similar) — docs here are English-only; a non-Latin letter usually means leftover text from
+//     another language. Emoji and typographic punctuation (em dash, curly quotes, ellipsis,
+//     arrows) are NOT script characters and stay allowed;
 //   - any email address, except one containing "noreply" (a real person's address, not a
 //     no-reply bot address);
 //   - any IPv4 address, except 127.0.0.1 and 0.0.0.0 (a real server address, not a loopback or
@@ -14,7 +14,7 @@
 //     built on.
 //
 // This is a blunt, mechanical net, not a judgment call — it's meant to catch what a careful
-// translation might still miss, not to replace the translation itself.
+// read-through might still miss, not to replace that read-through itself.
 //
 // Run: node bin/check-public-clean.mjs
 // Exit 1 — at least one hit, printed as file:line, one per line.
@@ -33,8 +33,8 @@ const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 // escape: writing the escape as source text risks it being decoded into an actual character from
 // one of these scripts by some tool along the way, which would defeat the whole point of this
 // check by planting the very thing it hunts for. Not exhaustive of every script that exists — it
-// covers the ones a translation from this project's own source could plausibly leave behind, plus
-// the other major non-Latin scripts, as a wide net.
+// covers the scripts most likely to leave stray characters behind, plus the other major non-Latin
+// scripts, as a wide net.
 const NON_LATIN_SCRIPT_RANGES = [
   [0x0370, 0x03ff], // Greek and Coptic
   [0x0400, 0x04ff], // Cyrillic

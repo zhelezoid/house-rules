@@ -75,7 +75,7 @@ function runTool(dir) {
 
 // ---- fixture strings, assembled indirectly so no forbidden literal sits in this source -------
 
-const cyrillicChar = String.fromCharCode(0x0440); // one Cyrillic letter, built from its code point, never typed literally
+const nonLatinChar = String.fromCharCode(0x0440); // one non-Latin letter, built from its code point, never typed literally
 const greekChar = String.fromCharCode(0x03b1); // one Greek letter
 const hebrewChar = String.fromCharCode(0x05d0); // one Hebrew letter
 const arabicChar = String.fromCharCode(0x0627); // one Arabic letter
@@ -100,8 +100,8 @@ runCase("clean-line-no-complaints", () => {
   return expect(problems.length === 0, "no complaints", JSON.stringify(problems));
 });
 
-runCase("cyrillic-character-is-flagged", () => {
-  const problems = scanLine(`a comment with one letter: ${cyrillicChar}`);
+runCase("non-latin-character-is-flagged", () => {
+  const problems = scanLine(`a comment with one letter: ${nonLatinChar}`);
   return expect(problems.some((p) => p.includes("non-Latin")), "names a non-Latin script character", JSON.stringify(problems));
 });
 
@@ -188,10 +188,10 @@ try {
     );
   });
 
-  runCase("mutation-cyrillic-character-turns-it-red", () => {
+  runCase("mutation-non-latin-character-turns-it-red", () => {
     const dir = path.join(sandbox, "s2");
     makeRepo(dir);
-    fs.writeFileSync(path.join(dir, "notes.md"), `# Notes\n\nLine with ${cyrillicChar} in it.\n`, "utf8");
+    fs.writeFileSync(path.join(dir, "notes.md"), `# Notes\n\nLine with ${nonLatinChar} in it.\n`, "utf8");
     git(dir, ["add", "-A"]);
     const res = runTool(dir);
     return (

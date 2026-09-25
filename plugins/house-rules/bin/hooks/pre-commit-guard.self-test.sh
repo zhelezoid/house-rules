@@ -533,11 +533,11 @@ TOTAL_CASES=22
 }
 
 # === Case 18b: a custom rule id colliding with a gitleaks built-in — a refusal ======
-# This is B1 itself, exercised through the guard rather than through gitleaks directly: an id
-# renamed back to one of gitleaks' own built-ins (its default "openai-api-key" rule doesn't match
-# the same shape as ours) silently wins over the custom regex, and gitleaks reports clean even
-# though the file being scanned is exactly the bait for that rule. bait_check has to notice, since
-# nothing else would.
+# This is the id-collision failure described in gitleaks-common.toml, exercised through the guard
+# rather than through gitleaks directly: an id renamed back to one of gitleaks' own built-ins (its
+# default "openai-api-key" rule doesn't match the same shape as ours) silently wins over the
+# custom regex, and gitleaks reports clean even though the file being scanned is exactly the bait
+# for that rule. bait_check has to notice, since nothing else would.
 {
   name="colliding-rule-id-is-caught-as-toothless"
   isolated="$ROOT_TMP/c18b/isolated"; mkdir -p "$isolated"

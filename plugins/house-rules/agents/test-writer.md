@@ -28,7 +28,7 @@ red and write in the report: "the spec promises X, the code does Y." Deciding wh
 main model's job.
 
 **If the spec is silent** about a behavior you need to check, don't guess. Raise the question
-instead: "the spec doesn't say what happens with an empty cart." An expectation you invented is a
+instead: "the spec doesn't say what happens with an empty input list." An expectation you invented is a
 guess, not a check.
 
 ## How to write a route-level check (the main pattern)
@@ -45,8 +45,8 @@ of test stays green while the hole ships to production. Write so this can't happ
    **denial** case: flip the replacement to "access denied" and confirm the route returns
    401/403.
 4. **Build a request** with no permission / a different owner / no token / a broken signature.
-5. **Check two things**: the specific response code AND the absence of a side effect (no order
-   created, no money moved, no record changed).
+5. **Check two things**: the specific response code AND the absence of a side effect (no record
+   created or changed, no money moved).
 
 A check that only confirms the response code misses half the holes — a route can return 403 and
 still manage to write data.

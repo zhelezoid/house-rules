@@ -17,7 +17,7 @@ import { fileURLToPath } from 'node:url';
 
 const SPECS_DIR = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = dirname(SPECS_DIR); // specs/ -> repo root (not process.cwd() — same as
-// build-index.mjs, works no matter where `node` is invoked from)
+// your spec index builder, if you have one, works no matter where `node` is invoked from)
 const OUT_FILE = join(SPECS_DIR, 'TEST-MAP.md');
 
 // Project name for the report title — DELIBERATELY not `basename(REPO_ROOT)` (the checkout
@@ -59,13 +59,13 @@ const PROJECT_NAME = resolveProjectName();
 
 // --- 1. Where specs live ---------------------------------------------------------------------
 // Scans active/ (in progress) and done/ (shipped — tests stay a regression gate), same as
-// check-acceptance.mjs. ideas/ and reference/ are out of scope for this map (no acceptance runs
-// there).
+// check-spec-acceptance.mjs. ideas/ and reference/ are out of scope for this map (no acceptance
+// runs there).
 const SCAN_SLOTS = ['active', 'done'];
 
 // --- 2. Where tests live -----------------------------------------------------------------
 // Folders RELATIVE to repo root, scanned individually and NOT recursively (a flat folder, as in
-// the originating project's __tests__/). A missing folder is silently skipped, the map doesn't
+// a typical project's __tests__/). A missing folder is silently skipped, the map doesn't
 // fail. Common variants: Next.js/vitest — `__tests__`; Node/jest/mocha — `test` or `tests`; a
 // monorepo with tests next to source won't fit here without adding recursion.
 const TEST_DIRS = ['__tests__', 'test', 'tests'];
@@ -79,13 +79,13 @@ const TEST_FILE_RE = /\.(test\.tsx?|test\.jsx?|test\.mjs|test\.cjs|spec\.tsx?|sp
 // test arguments (files/globs). Matches are tokenized to find tokens that look like a test path
 // (see TEST_DIRS/TEST_FILE_RE) — that's what "tests the spec actually calls" means.
 //
-// The first entry is the originating project's convention: a bash helper `run_tests
-// <files...>`, declared in the PRELUDE of check-acceptance.mjs. It FAILS if the file doesn't
-// exist — a plain `npx vitest run <files>` instead treats a missing name as an EMPTY FILTER and
-// silently exits 0 (a trap found by review in that project: three acceptance points looked
-// verified even though the test file had been deleted). If your project has no such helper,
-// build one on the same model (see check-acceptance.mjs) and uncomment the pattern you need
-// below INSTEAD OF/ALONGSIDE it.
+// The first entry is an example convention: e.g. a shell helper `run_tests <files...>` that
+// fails on a missing file, declared in the PRELUDE of check-spec-acceptance.mjs. It FAILS if the
+// file doesn't exist — a plain `npx vitest run <files>` instead treats a missing name as an
+// EMPTY FILTER and silently exits 0 (a trap found by review in practice: three acceptance points
+// looked verified even though the test file had been deleted). If your project has no such
+// helper, build one on the same model (see check-spec-acceptance.mjs) and uncomment the pattern
+// you need below INSTEAD OF/ALONGSIDE it.
 //
 // WARNING: without a helper, the runner decides on its own what to do with a missing file —
 // sometimes that's a silent 0. After uncommenting any pattern below, verify your runner's
@@ -141,10 +141,12 @@ const args = new Set(process.argv.slice(2));
 const MODE_CHECK = args.has('--check');
 const MODE_GATE = args.has('--gate');
 
-// ---------- parsing a single spec: shared with build-index.mjs and check-acceptance.mjs ----------
+// ---------- parsing a single spec: shared with your spec index builder, if you have one, and
+// check-spec-acceptance.mjs ----------
 
 // Pull the value of a single-line key out of YAML front matter (between the first --- ... ---).
-// Copy of build-index.mjs's logic — that file isn't touched, but the parser matches it.
+// Copy of your spec index builder's logic, if you have one — that file isn't touched, but the
+// parser matches it.
 function frontmatter(text) {
   const m = text.match(/^---\s*\n([\s\S]*?)\n---/);
   if (!m) return null;
@@ -158,11 +160,11 @@ function frontmatter(text) {
 
 // Extract all ```acceptance ... ``` blocks — with a line-by-line state machine, not one regex.
 //
-// Why not a regex (the way check-acceptance.mjs does it — that file runs each block ISOLATED
+// Why not a regex (the way check-spec-acceptance.mjs does it — that file runs each block ISOLATED
 // through spawnSync and doesn't need to tell "empty" from "unclosed" apart; a broken block just
 // executes as an empty script and fails on its own). Here it's the opposite: we need to tell
 // these two cases apart precisely, and a single-regex approach conflates them. The concrete trap
-// (found by review in the originating project): for an EMPTY block —
+// (found by review in practice): for an EMPTY block —
 //   ```acceptance
 //   ```
 // — there is no "\n" left in reserve between the opening and closing line: the newline after
@@ -401,7 +403,7 @@ function isRouteContent(content) {
 
 // An internal repo import (not an external package, not node:*, not a test framework): one of
 // INTERNAL_IMPORT_ALIASES (settings § 6) or a relative `./`/`../` onto a repo file — e.g.
-// `../specs/check-acceptance.mjs`, `../lib/util.mjs`.
+// `../specs/check-spec-acceptance.mjs`, `../lib/util.mjs`.
 function isInternalSpecifier(spec) {
   if (INTERNAL_IMPORT_ALIASES.some((prefix) => spec.startsWith(prefix))) return true;
   return spec.startsWith('./') || spec.startsWith('../');
@@ -504,7 +506,7 @@ function hasRiskSignal(text) {
   });
 }
 
-// The "guard mocked wide open" heuristic (a real finding in the originating project). Being in
+// The "guard mocked wide open" heuristic (a real finding, found by review in practice). Being in
 // the "route" state does NOT by itself guarantee the permission check inside wasn't replaced by
 // a mock — that's for the reviewer to sort out; this is only a cheap machine hint, not a verdict.
 //
@@ -819,7 +821,7 @@ function buildReport() {
     '',
     '> ⚙️ Auto-generated by `node specs/test-map.mjs` from specs in `specs/<slot>/*.md` (slots — ' +
       `\`${SCAN_SLOTS.join('/')}\`) and tests in \`${TEST_DIRS.join(', ')}\`. **Do not edit by hand.**` +
-      ' Freshness is checked with `--check` (same model as `specs/INDEX.md`/`build-index.mjs`); holes with',
+      ' Freshness is checked with `--check` (same model as your spec index builder, if you have one); holes with',
     '> `--gate`. Both flags only read, they never write TEST-MAP.md — a plain run without flags is the one that writes.',
     '',
     '## State legend',
@@ -1049,7 +1051,7 @@ const report = buildReport();
 // gate?"). Both flags are INDEPENDENT of each other: `--check --gate` runs BOTH checks and fails
 // if either one does — otherwise `--check` could `process.exit()` BEFORE execution reaches
 // `--gate`, and `--check --gate` in CI would be an evergreen gate (a real trap, found by review
-// in the originating project).
+// in practice).
 if (MODE_CHECK || MODE_GATE) {
   let failed = false;
 

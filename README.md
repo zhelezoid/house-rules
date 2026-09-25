@@ -86,7 +86,7 @@ instead — in different words, with a different outcome.
 
 Why: this is the most common failure in checks, and the most expensive, because it looks like
 health. A sync that received a malformed response reports "no changes." A health check sees `200`
-on a page with an empty shelf. A wrapper reads yesterday's green report because today's run crashed
+on a page that renders no content. A wrapper reads yesterday's green report because today's run crashed
 before writing. In each case silence gets read as calm. Three states — has data, empty, could not
 find out — and the third is never folded into the second "for simplicity." See
 [empty-vs-broken.md](plugins/house-rules/reference/empty-vs-broken.md).
@@ -647,7 +647,7 @@ directly against this repository's own tree:
 | [bin/check-changes-logged.mjs](bin/check-changes-logged.mjs) | A change under `plugins/house-rules/` has a changelog entry dated today | CI, and pre-commit with `--staged` |
 | [bin/check-plugin-version.mjs](bin/check-plugin-version.mjs) | A change inside a plugin bumps its version in `.claude-plugin/plugin.json` — the updater compares versions, so an unbumped edit never reaches anyone | CI, on every change |
 | [bin/check-guards-selftested.mjs](bin/check-guards-selftested.mjs) | Every tool in EITHER `bin/` directory has a self-test (or a written reason why not), every self-test is run by `.github/workflows/checks.yml`, the workflow calls no missing self-test, and every maintainer guard in root `bin/` is also invoked directly, not just through its self-test | CI, on every change |
-| [bin/check-public-clean.mjs](bin/check-public-clean.mjs) | Keeps this public repository clean: no characters from a non-Latin script (Cyrillic, Greek, Armenian, Hebrew, Arabic, CJK, Hangul...), no email addresses other than `noreply`, no IPv4 addresses other than `127.0.0.1` / `0.0.0.0`, no absolute home-directory paths, gitleaks clean | CI, on every change |
+| [bin/check-public-clean.mjs](bin/check-public-clean.mjs) | Keeps this public repository clean: no characters from a non-Latin script, no email addresses other than `noreply`, no IPv4 addresses other than `127.0.0.1` / `0.0.0.0`, no absolute home-directory paths, gitleaks clean | CI, on every change |
 
 ### Agents
 

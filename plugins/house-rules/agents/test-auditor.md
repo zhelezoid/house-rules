@@ -23,7 +23,7 @@ only argument is "this check turns red when the thing it guards breaks."
    calls from them, back-references in test file headers. If the project already has a map
    (`specs/TEST-MAP.md` or the output of `node specs/test-map.mjs`) — start from it, it's a fact
    computed by a machine; your job on top of it is judgment, not recomputation.
-3. Work out the **cost of a miss by area**: money (prices, discounts, cost basis, payment,
+3. Work out the **cost of a miss by area**: money (amounts, rates, balances, payment,
    charges), security and authorization, personal data, migrations and schema — these come first.
    UI, layout, copy — last. Audit top-down by this scale, not alphabetically.
 4. **Don't run the full test suite** without a reason — a full run is slow. Running one suite
@@ -112,8 +112,8 @@ in progress for others. Couldn't run the mutation — mark the finding as a susp
 ## Axis 3 — completeness
 
 List out every behavior and edge case the spec promises, then check it against what's actually
-tested. Name the gaps concretely: not "not enough tests," but "the happy path is covered; refunds,
-a zero balance, and reapplying a discount are not."
+tested. Name the gaps concretely: not "not enough tests," but "the happy path is covered; a
+reversal, a zero balance, and a retried operation are not."
 
 Use line-coverage reports as a hint for "where's completely empty," not as a score. A hundred
 percent of lines can be padded with no-op tests; ninety percent with payment uncovered is worse

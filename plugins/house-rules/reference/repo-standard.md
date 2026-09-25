@@ -663,7 +663,7 @@ Four more rules apply at night:
 * 🔴 **One deployment for the whole night, at the end, covering everything accumulated.** No merging
   or deploying happens mid-run: a task is driven to a ready branch with green checks and left waiting.
   At the end of the night everything ready merges at once — one deployment, one production check, one
-  pass through the customer path. Exactly one exception: **production is down** — the urgent fix ships
+  pass through the main user path. Exactly one exception: **production is down** — the urgent fix ships
   immediately and alone, since the cost of waiting outweighs one extra deployment. If something
   accumulated turns out incompatible (one change breaks another), whatever is ready and verified ships
   and the rest waits for morning, noted in the handoff — splitting "just in case" isn't allowed.

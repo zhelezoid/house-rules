@@ -206,7 +206,7 @@ deliberately:
 
 **Axis 3 — completeness.** List every promised behavior and edge case out of the spec, and match each
 one against what's actually checked. A finding must be concrete: not "not enough tests," but "the
-happy path is covered, but the refund, the zero-balance case, and reapplying a discount are not."
+happy path is covered, but a reversal, a zero-balance case, and a retried operation are not."
 
 **Axis 4 — freshness.** Code that a test guards changed after the test did is a reason to read it (not
 always a verdict — refactoring without a behavior change is fine). An orphan test, tied to no

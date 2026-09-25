@@ -16,7 +16,7 @@ typical blind spot:
 | what was observed | what it actually meant |
 |---|---|
 | A board sync reported "no changes on the board" | The response came back with a 200 but was missing the expected field. The sync saw nothing at all and **moved its timestamp forward anyway** — the observation window shifted, and whatever it missed never came back |
-| A listing page returned 200 | It rendered zero records. A visitor arriving from search saw an empty page, while every automated check judged health by the response code alone |
+| A page returned 200 | It rendered zero records. A visitor saw an empty page, while every automated check judged health by the response code alone |
 | A run reported "thousands of tests passed," exit code 1 | The tests genuinely all passed; a notification channel inside the runner had crashed. The red exit code got read as "tests failed," which trained people to stop looking at the exit code at all |
 | A sender's first run reported zero on every counter | The queue was actually full: the batch pulled the first N records, all of which turned out to be stale and got filtered out. Zero meant "wrong batch," not "nothing to send" |
 | A run wrapper reported "result is trustworthy" | The report path still held **yesterday's** green file; today's run had crashed before it ever got to write. The judgment was made on someone else's run, not this one |
@@ -43,8 +43,8 @@ creates a silent breakage.
   expected structure is a broken response, not "no data." An empty list inside a structure that
   otherwise arrived intact is a legitimate "empty."
 - **A response code doesn't stand in for content.** 200 says "the server answered," not "the page is
-  useful." A check that judges health by response code alone will miss an empty shelf, an empty
-  catalog, or a placeholder page.
+  useful." A check that judges health by response code alone will miss an empty list, an empty
+  table, or a placeholder page.
 - **A successful exit code and a complete report are different claims.** Judge by the work's own
   report, not by the tool's sense of its own well-being — an exit code is just the tool's opinion of
   itself.

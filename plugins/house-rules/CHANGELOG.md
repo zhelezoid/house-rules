@@ -15,6 +15,16 @@ with "all" when the entry reaches even repositories that haven't adopted the rul
 
 ---
 
+## 2026-09-25 · Neutral examples in the reference and the agents
+
+**Documents:** `reference/empty-vs-broken.md`, `reference/repo-standard.md`,
+`reference/spec-and-tests.md`, `agents/test-auditor.md`, `agents/test-writer.md`,
+`templates/test-map.mjs`, `bin/hooks/pre-commit-guard.self-test.sh`
+
+**For adopters:** nothing — wording of examples only; no rule changed.
+
+---
+
 ## 2026-09-25 · Initial release
 
 **Documents:** `rules/rules.md`, `reference/repo-standard.md`, `reference/task-loop.md`,
