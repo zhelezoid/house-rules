@@ -15,6 +15,18 @@ with "all" when the entry reaches even repositories that haven't adopted the rul
 
 ---
 
+## 2026-09-25 · The stage log belongs to level 4, not level 3
+
+At level 3 the history is already visible in the pull request, the CI runs and the card; a stage log
+pays off only when several executors work in parallel and the order of their actions matters.
+
+**Documents:** `reference/deployment-levels.md`, `reference/repo-standard.md`
+
+**For adopters:** nothing — the rules section did not change. A level-3 repository that promised a
+stage log in the first line of `AGENTS.md` can drop that promise.
+
+---
+
 ## 2026-09-25 · Neutral examples in the reference and the agents
 
 **Documents:** `reference/empty-vs-broken.md`, `reference/repo-standard.md`, `reference/spec-and-tests.md`, `agents/test-auditor.md`, `agents/test-writer.md`, `templates/test-map.mjs`, `bin/hooks/pre-commit-guard.self-test.sh`

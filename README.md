@@ -206,8 +206,8 @@ checks means handing the production branch to something nobody is watching.
 | 0 | nothing | spending effort on a repository that does not need it |
 | 1 | `AGENTS.md` with the rules section, `specs/`, a task board | nobody knowing what is decided, where things live, or what comes next |
 | 2 | executable acceptance, spec-to-test map, checks on every change | "the tests are green" standing in for proof |
-| 3 | protected main branch, destructive-command barrier, secrets guard, stage log | an unsupervised agent doing irreversible damage with no trace |
-| 4 | task claiming, work split by files, serialized schema changes | two workers taking the same task or clobbering the same file |
+| 3 | protected main branch, destructive-command barrier, secrets guard | an unsupervised agent doing irreversible damage with no trace |
+| 4 | task claiming, work split by files, serialized schema changes, stage log | two workers taking the same task or clobbering the same file |
 
 Two rules sit above the table.
 
@@ -391,7 +391,9 @@ already halfway into level 4.
 **What it adds.** Claiming a task on the board before work starts (status, executor, machine,
 occupied files); splitting work by file zones rather than topics; a mechanical overlap check against
 other open pull requests; one worker at a time for schema migrations; a rule for who reviews whom —
-with mandatory review before merge when one of the workers is a human with merge rights.
+with mandatory review before merge when one of the workers is a human with merge rights; a stage log
+— one line per step of work (task taken, started, pull request, each check, review, merge, release),
+so that "who did what, in what order" can be read back without having watched.
 
 **Which failure it prevents.** Two workers taking the same task. Two workers editing the same file
 and one silently overwriting the other. Two migrations claiming the same slot and breaking a

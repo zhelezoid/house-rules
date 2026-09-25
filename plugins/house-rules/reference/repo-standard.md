@@ -827,7 +827,11 @@ everything else depends on:
   on purpose and confirm it goes red; note in the acceptance record exactly what you broke to prove
   it.
 
-## Stage log
+## Stage log — level 4
+
+Needed once there is more than one executor: a conversation the owner was not part of cannot
+reconstruct who did what, in what order. Not set up at levels 1–3 — there the history is visible in
+the pull request, the CI runs and the card.
 
 🔴 **A script that runs a stage of work writes a line about it to a log.** The format is deliberately
 plain: JSON Lines, one line per event, no dependencies — a file that both `jq` and a future

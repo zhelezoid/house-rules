@@ -27,8 +27,8 @@ to, or simple apps that genuinely don't need this system. Silence is not a reque
 | **0. Leave it alone** | nothing | — |
 | **1. Specs and a board** | a rules file (`AGENTS.md`) with a "Rules" section · a `specs/` skeleton · a task on the board | write it by hand, following the walkthrough below |
 | **2. + Test control** | a spec↔test map · executable acceptance criteria · auditor agents · **automatic checks on every change** | follow `reference/test-map-and-audit.md` |
-| **3. + Executor without the owner** | a task transport · a machine identity · trigger labels · **a guard on destructive commands** · **no direct writes to the main branch** · **a stage log** | project-specific automation, not covered by this repo |
-| **4. + More than one executor** | claiming a task · splitting work by file zones · a rule for who reviews whom · mandatory review before merge, when one of the workers is a human with merge rights | project-specific automation, not covered by this repo |
+| **3. + Executor without the owner** | a task transport · a machine identity · trigger labels · **a guard on destructive commands** · **no direct writes to the main branch** | project-specific automation, not covered by this repo |
+| **4. + More than one executor** | claiming a task · splitting work by file zones · a rule for who reviews whom · mandatory review before merge, when one of the workers is a human with merge rights · **a stage log** | project-specific automation, not covered by this repo |
 
 Levels are **cumulative**: level 4 includes everything from levels 1-3. You can't skip a rung — not
 out of pedantry, but because each level leans on the one before it: an autonomous executor has nothing
@@ -207,10 +207,11 @@ written in at level 1 already — but for this reason specifically.
 | 2 | a check run: time and money, every pass |
 | 3 | plus a label set by hand, merge only via pull request, a deploy to production, checking production afterward |
 
-### Stage log — level 3
+### Stage log — level 4
 
 It answers "what happened while I wasn't there." While the owner is in the conversation, they see
-everything themselves, nothing to log; at level 2, the history of checks already lives in CI runs. The
+everything themselves, nothing to log; at level 2, the history of checks already lives in CI runs; at level 3, in
+the pull request ("what was done, how it was checked, what was not"), the CI runs and the card. The
 log pays off at level 4, where what matters isn't just "what got done" but **who did it and in what
 order** — a chat the owner wasn't part of won't reconstruct that.
 
@@ -297,8 +298,8 @@ not a summary in prose.
 |---|---|---|
 | 1 | `AGENTS.md` naming its level, with a "Rules" section between the markers · a `specs/` skeleton · a task on the board | `agents-md.mjs --check` is green · the spec index builds · the rules file's first line names its level · a session prints that `AGENTS.md` loaded at start; the single-canon check goes red on a stray root-level `CLAUDE.md` |
 | 2 | a spec↔test map · executable acceptance criteria · a check run on every change | the check run is green · the map builds · **the measuring tool has been proven by mutation — an invariant was broken, and the check went red** |
-| 3 | a task transport, a machine identity, a guard on destructive commands, main-branch protection, a stage log | the protection actually blocks a direct push · the guard's self-test is green · **one real task went through the whole loop, up to a pull request** · the log has lines in it |
-| 4 | task claiming, split work, a review rule | two executors didn't grab the same task twice — checked on a live pair |
+| 3 | a task transport, a machine identity, a guard on destructive commands, main-branch protection | the protection actually blocks a direct push · the guard's self-test is green · **one real task went through the whole loop, up to a pull request** |
+| 4 | task claiming, split work, a review rule, a stage log | two executors didn't grab the same task twice — checked on a live pair · the log has lines from both, in the order things happened |
 
 🔴 **A check that can't go red is more dangerous than having none.** You installed a check — break
 the invariant on purpose and confirm it goes red. "Configured" is not "working."
