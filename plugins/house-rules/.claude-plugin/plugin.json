@@ -1,7 +1,7 @@
 {
   "name": "house-rules",
   "description": "A leveled rule set for repositories where AI agents write code: spec-driven work, self-tested guards, a review pass, and a deployment checklist, with a generator that keeps the rules section of AGENTS.md in sync.",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": {
     "name": "house-rules contributors"
   }
