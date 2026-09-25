@@ -62,6 +62,17 @@ Then, in a Claude Code session inside your repository, say **"bring this reposit
 standard"**. The agent looks the repository over, proposes a level with a reason, and after your
 answer inserts the rules section into `AGENTS.md`. Later, `/house-rules:update` keeps it fresh.
 
+**Who does what.** The plugin brings the rules, the reference, the skills, the agents and the tools
+to your machine — nothing more; it never changes a repository or a platform setting on its own.
+Inside each repository:
+
+| Step | Who |
+|---|---|
+| Pick the level, generate the rules section in `AGENTS.md`, remove a root `CLAUDE.md` | the agent, after your answer on the level |
+| Add the level's CI checks, the secret-scanning hook, the test map | the agent, item by item from the level's checklist |
+| Turn on branch protection and required checks on GitHub (level 3 and up) | you — the agent tells you exactly what to switch on; it does not grant itself that power |
+| Keep the section current | `/house-rules:update`, one pull request per update |
+
 ## Is it for you?
 
 It fits if agents write a meaningful part of your code, you care more about "it provably works"
