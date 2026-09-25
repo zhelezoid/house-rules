@@ -1,0 +1,96 @@
+name: checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install gitleaks
+        run: |
+          set -euo pipefail
+          version="8.21.2"
+          curl -sSfL -o /tmp/gitleaks.tar.gz \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${version}/gitleaks_${version}_linux_x64.tar.gz"
+          mkdir -p /tmp/gitleaks
+          tar -xzf /tmp/gitleaks.tar.gz -C /tmp/gitleaks
+          sudo install -m 0755 /tmp/gitleaks/gitleaks /usr/local/bin/gitleaks
+          gitleaks version
+
+      # --- self-tests: adopter tools shipped inside the plugin -------------------------------
+      - name: agents-md.self-test.mjs
+        run: node plugins/house-rules/bin/agents-md.self-test.mjs
+
+      - name: what-changed.self-test.mjs
+        run: node plugins/house-rules/bin/what-changed.self-test.mjs
+
+      - name: check-spec-acceptance.self-test.mjs
+        run: node plugins/house-rules/bin/check-spec-acceptance.self-test.mjs
+
+      - name: hooks/pre-commit-guard.self-test.sh
+        run: bash plugins/house-rules/bin/hooks/pre-commit-guard.self-test.sh --prove-mutations
+
+      # --- self-tests: this repository's own maintainer guards -------------------------------
+      - name: check-agents-md-rules.self-test.mjs
+        run: node bin/check-agents-md-rules.self-test.mjs
+
+      - name: check-proofs-sync.self-test.mjs
+        run: node bin/check-proofs-sync.self-test.mjs
+
+      - name: check-changes-logged.self-test.mjs
+        run: node bin/check-changes-logged.self-test.mjs
+
+      - name: check-plugin-version.self-test.mjs
+        run: node bin/check-plugin-version.self-test.mjs
+
+      - name: check-guards-selftested.self-test.mjs
+        run: node bin/check-guards-selftested.self-test.mjs
+
+      - name: check-public-clean.self-test.mjs
+        run: node bin/check-public-clean.self-test.mjs
+
+      # --- the base for the two guards that compare against a previous commit ----------------
+      # Pull request: compare against the PR's base branch. Push: compare against what the ref
+      # pointed at before this push (`github.event.before`) — on the very first push to a branch
+      # that's the all-zero sha, and both guards treat it as "nothing to compare", not a failure.
+      - name: Compute comparison base
+        id: base
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "base=origin/${{ github.event.pull_request.base.ref }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "base=${{ github.event.before }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      # --- this repository's own maintainer guards, run directly against its own tree -------
+      - name: check-agents-md-rules.mjs (rules/rules.md is in order)
+        run: node bin/check-agents-md-rules.mjs
+
+      - name: check-proofs-sync.mjs (REQUIRED-PROOFS.md and required-proofs.json agree)
+        run: node bin/check-proofs-sync.mjs
+
+      - name: check-plugin-version.mjs (a plugin edit bumped its version)
+        run: node bin/check-plugin-version.mjs "${{ steps.base.outputs.base }}" HEAD
+
+      - name: check-changes-logged.mjs (a plugin edit has a changelog entry)
+        run: node bin/check-changes-logged.mjs --since "${{ steps.base.outputs.base }}"
+
+      - name: check-guards-selftested.mjs (every self-test is actually run, every guard runs directly)
+        run: node bin/check-guards-selftested.mjs
+
+      - name: check-public-clean.mjs (no private leftovers in the tree)
+        run: node bin/check-public-clean.mjs
+
+      - name: gitleaks (full history, common rule set)
+        run: gitleaks detect --source . --config plugins/house-rules/bin/hooks/gitleaks-common.toml -v --redact --exit-code 1

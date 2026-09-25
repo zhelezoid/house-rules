@@ -1,0 +1,132 @@
+{
+  "version": 1,
+  "note": "The only thing that travels between repositories. Statements are observable outcomes; none names a tool or a file. The human-readable version with reasons is in REQUIRED-PROOFS.md next to this file.",
+  "states": [
+    "proven",
+    "not proven",
+    "not applicable"
+  ],
+  "silence_means": "not proven",
+  "proofs": [
+    {
+      "id": "intent-and-code-travel-together",
+      "level": 1,
+      "statement": "A change to behavior and the change to the intent describing it land in history as one change: the code leads back to its reasoning, and a revert takes both with it.",
+      "failure_case": "Change behavior while leaving the description as it was, and pass it off as finished work."
+    },
+    {
+      "id": "intent-registry-matches-reality",
+      "level": 1,
+      "statement": "The list of specs matches what's actually there: additions are visible, deletions are gone, and the declared status matches location.",
+      "failure_case": "Add a new spec and don't rebuild the index."
+    },
+    {
+      "id": "machine-promise-has-a-checker",
+      "level": 2,
+      "statement": "Every acceptance item declared machine-checked is tied to a check that automation actually runs.",
+      "failure_case": "Mark an item machine-checked without setting up a check for it."
+    },
+    {
+      "id": "rules-canon-reaches-the-executor",
+      "level": 1,
+      "statement": "The repository has one rulebook at its root, and the executor gets it automatically, with no need to be told to read it first. Nothing stored in the repository disables that auto-loading.",
+      "failure_case": "Put a second rulebook at the root that makes the executor skip the canon when present, or delete or empty the canon itself."
+    },
+    {
+      "id": "checks-can-turn-red",
+      "level": 2,
+      "statement": "For every guarding claim there's a case where the check turns red, and that's been proven by running it, not just asserted.",
+      "failure_case": "Break the guarded behavior: the run must turn red."
+    },
+    {
+      "id": "run-judged-by-exit-status",
+      "level": 2,
+      "statement": "The outcome of a run comes from the exit code of the work itself; text printed to the screen doesn't count as the outcome.",
+      "failure_case": "Make a run print a reassuring message and return a nonzero exit code — the outcome must be counted as failure."
+    },
+    {
+      "id": "shared-check-outlives-single-intent",
+      "level": 2,
+      "statement": "A check guarding an invariant of the whole project doesn't depend on the life of any one task.",
+      "failure_case": "Close any single task: the shared check must remain and keep running."
+    },
+    {
+      "id": "check-hits-live-code",
+      "level": 2,
+      "statement": "A check exercises the same code that runs in production, not a similar function sitting next to it and not an entirely swapped-out mechanism.",
+      "failure_case": "Gut the production implementation while keeping its name: the check must turn red."
+    },
+    {
+      "id": "no-direct-writes-to-main-line",
+      "level": 3,
+      "statement": "A change reaches the main branch only through a proposal with passed checks; nobody can bypass this, including the owner.",
+      "failure_case": "An attempt to write to the main branch directly must be rejected by the repository's own guard, not by the executor's good behavior."
+    },
+    {
+      "id": "irreversible-stops-at-a-human",
+      "level": 3,
+      "statement": "A command whose consequences can't be undone doesn't run without a human's explicit permission, and that permission leaves a trace.",
+      "failure_case": "Issue a destructive command without permission: it must be rejected; with permission: a trace must remain."
+    },
+    {
+      "id": "secret-never-reaches-history",
+      "level": 3,
+      "statement": "A change staged for commit that contains a usable secret never makes it into history.",
+      "failure_case": "Put a string shaped like a real key into a change."
+    },
+    {
+      "id": "editing-the-guard-needs-owner",
+      "level": 3,
+      "statement": "Changing what gets checked and how it gets checked is different from ordinary work and requires the owner's explicit permission.",
+      "failure_case": "Weaken or disable a check and pass it off as ordinary work."
+    },
+    {
+      "id": "agent-work-is-visibly-the-agents",
+      "level": 3,
+      "statement": "Work done by an agent shows up on the task board as an agent's work: the assignee is the agent identity, not the human whose credentials the agent is using.",
+      "failure_case": "File a card as the agent but leave the assignee as the owner: the owner's queue becomes indistinguishable from the agents' queue, and the owner ends up with work they never took."
+    },
+    {
+      "id": "owner-orders-outrank-agent-findings",
+      "level": 3,
+      "statement": "The owner's queue is kept apart from an agent's findings by mechanism: a finding lands in a separate inbox and waits for a decision, and the receiving side sets its priority, not the one who filed it.",
+      "failure_case": "File a finding straight into the owner's work queue, or give it high priority yourself: the queue stops answering what's on me, and the owner's own orders lose out to derivative work."
+    },
+    {
+      "id": "measurements-outlive-the-environment",
+      "level": 3,
+      "statement": "Data a decision leans on stays available after the environment it was collected in gets rebuilt.",
+      "failure_case": "Rebuild the environment and ask for the last day's readings."
+    },
+    {
+      "id": "release-is-verified-after-it-lands",
+      "level": 3,
+      "statement": "After a release, the state of the production system is checked on its own: exactly what codes the key addresses respond with, and what the run says.",
+      "failure_case": "Break one key address and deploy: the post-release check must turn red."
+    },
+    {
+      "id": "empty-differs-from-broken",
+      "level": 3,
+      "statement": "Any mechanism capable of answering there's nothing there tells that apart from I couldn't check, and says something different for each.",
+      "failure_case": "Cut off the data source: the mechanism must say it couldn't check, not that there's nothing there."
+    },
+    {
+      "id": "claimed-work-is-visible",
+      "level": 4,
+      "statement": "Another executor finds out a task is already taken before starting it, not at merge time.",
+      "failure_case": "Take a task and don't mark it: a second executor must see this or be blocked."
+    },
+    {
+      "id": "file-overlap-is-seen-in-advance",
+      "level": 4,
+      "statement": "Before work starts, it's visible whether someone else is touching the same files.",
+      "failure_case": "Start work on a file that's being edited in someone else's open proposal."
+    },
+    {
+      "id": "schema-change-is-serialized",
+      "level": 4,
+      "statement": "Two changes to the data schema can't move at the same time.",
+      "failure_case": "File two schema changes claiming the same ordinal slot: it must turn red before deployment."
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "house-rules",
+  "owner": {
+    "name": "house-rules contributors"
+  },
+  "plugins": [
+    {
+      "name": "house-rules",
+      "source": "./plugins/house-rules",
+      "description": "A leveled rule set for repositories where AI agents write code, with a generator that keeps AGENTS.md in sync and self-tested guards that enforce it."
+    }
+  ]
+}

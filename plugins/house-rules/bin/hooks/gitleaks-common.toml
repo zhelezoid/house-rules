@@ -1,0 +1,66 @@
+# gitleaks config shipped with house-rules — general-purpose rules on top of gitleaks' own
+# defaults. A repository is expected to layer its OWN .gitleaks.toml on top for anything specific
+# to it (service names, internal variable conventions); see pre-commit-guard.sh for how the two
+# are combined.
+#
+# Run: gitleaks detect --source . --config gitleaks-common.toml --no-git
+# Pre-commit: gitleaks git --staged --config gitleaks-common.toml
+
+title = "house-rules general secret-scanning rules"
+
+[extend]
+useDefault = true
+
+# Every custom rule id below carries an "hr-" prefix. Without it, a custom id that happens to
+# match one of gitleaks' own built-in ids (e.g. its built-in "openai-api-key") silently WINS over
+# ours — gitleaks keeps the built-in definition and drops the custom regex entirely, with no
+# warning. That's not a theoretical risk: it was caught by feeding gitleaks a synthetic
+# `sk-proj-...` key and finding it went straight through, because the built-in "openai-api-key"
+# rule (which doesn't match the longer `sk-proj-` shape) was the one actually in force. The prefix
+# guarantees this file's rules never collide with gitleaks' own, whatever gitleaks ships next.
+
+[[rules]]
+id = "hr-anthropic-api-key"
+description = "Anthropic API key"
+regex = '''\bsk-ant-[a-z0-9]{4,}-[A-Za-z0-9_-]{50,}\b'''
+keywords = ["ANTHROPIC_API_KEY", "sk-ant-"]
+
+[[rules]]
+id = "hr-openai-api-key"
+description = "OpenAI API key"
+regex = '''\bsk-[A-Za-z0-9_-]{48,}\b'''
+keywords = ["OPENAI_API_KEY", "sk-"]
+
+[[rules]]
+id = "hr-gemini-api-key"
+description = "Google Gemini API key"
+regex = '''\bAIza[A-Za-z0-9_-]{35,}\b'''
+keywords = ["GEMINI_API_KEY", "GOOGLE_API_KEY", "AIza"]
+
+# The rule judges the SHAPE of the value, not a list of known strings.
+#
+# A weak secret looks a certain way regardless of which project it belongs to: shorter than 24
+# characters, entirely lowercase letters, digits, hyphen and underscore. A strong secret doesn't
+# look like that — it's long, and mixes case or symbols. A variable reference (`${…}`) doesn't
+# match: it has `$` and curly braces in it.
+#
+# This is deliberately stricter than matching a specific list of known-weak passwords: it catches
+# ANY short single-charset value, not just ones seen before. That's the right direction to err in
+# — an extra question is cheaper than a leaked database.
+[[rules]]
+id = "hr-weak-default-passwords"
+description = "Database password that is short and single-charset"
+regex = '''(?i)(POSTGRES_PASSWORD|MYSQL_PASSWORD|DB_PASSWORD|REDIS_PASSWORD)\s*=\s*[\"']?[a-z0-9_-]{1,23}[\"']?\s*$'''
+keywords = ["POSTGRES_PASSWORD", "MYSQL_PASSWORD", "DB_PASSWORD", "REDIS_PASSWORD"]
+
+[allowlist]
+description = "Global allowlist"
+paths = [
+    '''(.+)?node_modules/''',
+    '''(.+)?\.git/''',
+    '''(.+)?dist/''',
+    '''(.+)?build/''',
+    '''(.+)?\.lock$''',
+    '''(.+)?package-lock\.json$''',
+    '''(.+)?yarn\.lock$''',
+]
