@@ -13,10 +13,73 @@ repository: you adopt it at the level you actually need, from "specs and a task 
 It ships as a Claude Code plugin, but the knowledge is plain Markdown and the tools are plain
 Node.js scripts with no dependencies. Any agent that can read `AGENTS.md` can follow it.
 
+
+## Why this exists
+
+Coding agents are now good enough to do a real share of the work in a repository — and that is
+exactly when a different class of problem shows up. Not "the model wrote bad code," but:
+
+- **"Done" that isn't done.** The agent reports a task finished; the check it cites cannot actually
+  fail, or tests a copy of the logic instead of the live code, or was never run.
+- **Rules that nobody reads.** Guidelines live in a wiki page or a long doc. The agent never opens
+  it; after a context compaction mid-task it forgets even what it did read.
+- **Silence mistaken for success.** An API call fails, the code returns an empty list, the report
+  says "nothing found" — and a real outage looks exactly like a quiet day.
+- **Broken releases found by customers.** The change passed review, got merged, deployed — and
+  nobody checked what production actually answered afterwards.
+- **Agents stepping on each other.** Two sessions edit the same files, or the same migration, or both
+  pick up the same task, and the later one silently wins.
+- **The owner as the bottleneck.** Every question the agent could have had answered while planning
+  arrives mid-task instead, so the work stops and waits.
+
+`house-rules` is a set of answers to these, collected from running agents on real repositories. Each
+answer is a rule **and** the mechanism that makes breaking it visible: a CI check, a branch
+protection setting, a pre-commit hook, a generated section the agent cannot avoid loading.
+
+## What you get
+
+- **A short rules section in your `AGENTS.md`**, generated for your repository's level (1–4), that
+  every Claude Code or Codex session loads automatically. Your own project notes stay outside it.
+- **A reference** — eight documents with the reasoning, edge cases and examples behind every rule,
+  read by the agent on demand rather than at every session start.
+- **A list of required proofs** per level: what a repository at that level must be able to *prove*
+  by a check that goes red, not merely claim.
+- **Tools**: the section generator, an update checker, a spec-acceptance runner, a secret-scanning
+  pre-commit hook, and a spec-to-test map builder. Plain Node.js, no dependencies.
+- **Two agents**: `test-auditor` (does your test suite actually guard what the specs promise?) and
+  `test-writer` (writes checks from the spec, not from the code, and proves each one can fail).
+- **One command to stay current**: `/house-rules:update` pulls new rules into a repository in a
+  single pull request.
+
+## Quick start
+
+```bash
+claude plugin marketplace add zhelezoid/house-rules
+claude plugin install house-rules@house-rules
+```
+
+Then, in a Claude Code session inside your repository, say **"bring this repository up to
+standard"**. The agent looks the repository over, proposes a level with a reason, and after your
+answer inserts the rules section into `AGENTS.md`. Later, `/house-rules:update` keeps it fresh.
+
+## Is it for you?
+
+It fits if agents write a meaningful part of your code, you care more about "it provably works"
+than about speed on any single task, and you are willing to let a check block a merge. It scales from
+one person with one agent (level 1) to several agents working unattended (level 4).
+
+It is probably not for you if agents only autocomplete lines for you, or if the repository is a
+throwaway experiment — for that, level 0 ("leave it alone") is a legitimate answer, and the plugin
+will say so.
+
 ---
 
 ## Contents
 
+- [Why this exists](#why-this-exists)
+- [What you get](#what-you-get)
+- [Quick start](#quick-start)
+- [Is it for you?](#is-it-for-you)
 - [Core ideas](#core-ideas)
 - [The levels](#the-levels)
 - [The stages of one task](#the-stages-of-one-task)
@@ -527,13 +590,14 @@ freshness reminder uses `HOUSE_RULES_HOME` only and skips itself without it.
 2. **Generate the section.** `AGENTS.md` must exist (the section goes into an existing rulebook, it
    does not start one):
 
+   The usual way is `/house-rules:update` inside the repository: it generates the section and runs
+   the adoption steps from the changelog. To run the generator directly (from a clone, see above):
+
    ```bash
    node "$HOUSE_RULES_HOME/bin/agents-md.mjs" <repo> --level 2 --date 2026-09-25
    ```
 
-   `--date` is the date of the newest changelog entry you are applying. Running
-   `/house-rules:update` inside the repository does the same, plus the adoption steps from the
-   changelog.
+   `--date` is the date of the newest changelog entry you are applying.
 3. **Remove a root `CLAUDE.md`** if there is one, after moving anything worth keeping into
    `AGENTS.md` outside the markers.
 4. **Write the first line of `AGENTS.md`**: the level, and what the repository does not have yet.
